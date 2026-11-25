@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        รายงานความคิดเห็นผู้รับบริการ
+    </title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet" />
+
+    <link rel="stylesheet" href="css/style.css">
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <header class="hero">
+
+            <div class="hero-left">
+
+                <img src="assets/images/Logo QSNICH พื้นขาว.png" class="hero-logo" alt="Logo">
+
+                <div class="hero-title">
+
+                    <h1>
+                        Dashboard รายงานความคิดเห็นผู้รับบริการ
+                    </h1>
+
+                    <h2>
+                        สถาบันสุขภาพเด็กแห่งชาติมหาราชินี
+                    </h2>
+
+                </div>
+
+            </div>
+
+            <div class="hero-right">
+
+                <div class="update-card">
+
+                    <div class="update-title">
+
+                        <span class="update-dot"></span>
+
+                        <span>
+                            ข้อมูลอัปเดตล่าสุด
+                        </span>
+
+                    </div>
+
+                    <strong id="lastUpdateDate">
+                        16 กรกฎาคม 2569
+                    </strong>
+
+                    <span id="lastUpdateTime">
+                        10:42:35 น.
+                    </span>
+
+                </div>
+
+            </div>
+
+        </header>
+
+        <!-- ตัวกรองปีงบประมาณ -->
+        <section class="dashboard-filter">
+
+            <div class="filter-item">
+
+                <label for="fiscalYearFilter">
+                    ปีงบประมาณ
+                </label>
+
+                <select id="fiscalYearFilter">
+
+                    <option value="all">
+                        ภาพรวมทั้งหมด
+                    </option>
+
+                    <option value="2569">
+                        ปีงบประมาณ 2569
+                    </option>
+
+                    <option value="2570">
+                        ปีงบประมาณ 2570
+                    </option>
+
+                </select>
+
+            </div>
+
+        </section>
+
+
+        <section class="summary-section">
+
+            <!-- ยอดความคิดเห็นทั้งหมด -->
+            <div class="summary-card total">
+
+                <div class="summary-icon">
+                    <span class="material-symbols-rounded">
+                        forum
+                    </span>
+                </div>
+
+                <div class="summary-title">
+                    ความคิดเห็นทั้งหมด
+                </div>
+
+                <div class="summary-value">
+                    0
+                </div>
+
+                <div class="summary-trend neutral" id="totalMeta">
+                    ทุกประเภทในช่วงเวลาที่เลือก
+                </div>
+
+            </div>
+
+
+            <!-- ข้อร้องเรียน -->
+            <div class="summary-card complaint">
+
+                <div class="summary-icon">
+                    <span class="material-symbols-rounded">
+                        campaign
+                    </span>
+                </div>
+
+                <div class="summary-title">
+                    ข้อร้องเรียน
+                </div>
+
+                <div class="summary-value">
+                    0
+                </div>
+
+                <div class="summary-trend neutral" id="complaintMeta">
+                    0% ของความคิดเห็นทั้งหมด
+                </div>
+
+            </div>
+
+
+            <!-- ข้อเสนอแนะ -->
+            <div class="summary-card suggestion">
+
+                <div class="summary-icon">
+                    <span class="material-symbols-rounded">
+                        lightbulb
+                    </span>
+                </div>
+
+                <div class="summary-title">
+                    ข้อเสนอแนะ
+                </div>
+
+                <div class="summary-value">
+                    0
+                </div>
+
+                <div class="summary-trend neutral" id="suggestionMeta">
+                    0% ของความคิดเห็นทั้งหมด
+                </div>
+
+            </div>
+
+
+            <!-- คำชม -->
+            <div class="summary-card compliment">
+
+                <div class="summary-icon">
+                    <span class="material-symbols-rounded">
+                        thumb_up
+                    </span>
+                </div>
+
+                <div class="summary-title">
+                    คำชม
+                </div>
+
+                <div class="summary-value">
+                    0
+                </div>
+
+                <div class="summary-trend neutral" id="complimentMeta">
+                    0% ของความคิดเห็นทั้งหมด
+                </div>
+
+            </div>
+
+        </section>
+
+        <section class="dashboard-grid chart-pair">
+
+            <!-- กราฟความคิดเห็นรายเดือน -->
+            <section class="card">
+
+                <h3>
+                    แนวโน้มความคิดเห็นรายเดือน
+                </h3>
+
+                <div class="chart-wrapper">
+
+                    <canvas id="trendChart"></canvas>
+
+                </div>
+
+            </section>
+
+
+            <!-- กราฟความคิดเห็นตามอาคาร -->
+            <section class="card">
+
+                <h3>
+                    สัดส่วนความคิดเห็นจำแนกตามอาคาร
+                </h3>
+
+                <div class="chart-wrapper">
+
+                    <canvas id="buildingChart"></canvas>
+
+                </div>
+
+            </section>
+
+        </section>
+
+
+        <!-- Top 10 จุดบริการ -->
+        <section class="card full-card">
+
+            <h3>
+                5 อันดับจุดบริการที่ได้รับการพูดถึงมากที่สุด
+            </h3>
+
+            <div class="chart-wrapper">
+
+                <canvas id="serviceChart"></canvas>
+
+            </div>
+
+        </section>
+
+        <!-- ==============================
+     ALL FEEDBACK PREVIEW
+============================== -->
+
+        <section class="section" id="feedback-preview">
+
+            <div class="card feedback-preview-card">
+
+                <div class="feedback-preview-header">
+                    <h3>ความคิดเห็นจากผู้รับบริการ</h3>
+
+                    <a href="feedback.html" id="viewAllFeedbackBtn" class="feedback-more-link">
+                        ดูความคิดเห็นทั้งหมด →
+                    </a>
+                </div>
+
+                <!-- ตัวกรองประเภทความคิดเห็น -->
+                <div class="feedback-filter-bar" role="group" aria-label="กรองประเภทความคิดเห็น">
+
+                    <button type="button" class="feedback-filter-btn active" data-category="all" aria-pressed="true">
+                        ทั้งหมด
+                    </button>
+
+                    <button type="button" class="feedback-filter-btn filter-compliment" data-category="compliment"
+                        aria-pressed="false">
+                        คำชม
+                    </button>
+
+                    <button type="button" class="feedback-filter-btn filter-suggestion" data-category="suggestion"
+                        aria-pressed="false">
+                        ข้อเสนอแนะ
+                    </button>
+
+                    <button type="button" class="feedback-filter-btn filter-complaint" data-category="complaint"
+                        aria-pressed="false">
+                        ข้อร้องเรียน
+                    </button>
+
+                </div>
+
+                <!-- รายการความคิดเห็น -->
+                <div class="feedback-preview-list" id="feedbackPreviewList">
+
+                    <!-- รายการความคิดเห็นจะถูกสร้างด้วย JavaScript -->
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <footer class="footer">
+
+            <div>
+                กลุ่มงานพัฒนาคุณภาพ
+            </div>
+
+            <small>
+                สถาบันสุขภาพเด็กแห่งชาติมหาราชินี
+            </small>
+
+            <span>
+                Version 1.0.0
+            </span>
+
+        </footer>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/charts.js"></script>
+    <script src="js/app.js"></script>
+
+</body>
+
+</html>

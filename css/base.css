@@ -1,0 +1,156 @@
+/* ==========================================
+   BASE
+   Feedback QSNICH Report v2.0
+========================================== */
+
+*{
+
+    margin:0;
+
+    padding:0;
+
+    box-sizing:border-box;
+
+}
+
+html{
+
+    scroll-behavior:smooth;
+
+}
+
+body{
+
+    font-family:var(--font-family);
+
+    font-size:var(--font-md);
+
+    line-height:1.6;
+
+    color:var(--text);
+
+    background:var(--background);
+
+    -webkit-font-smoothing:antialiased;
+
+    -moz-osx-font-smoothing:grayscale;
+
+}
+
+img{
+
+    display:block;
+
+    max-width:100%;
+
+}
+
+a{
+
+    color:inherit;
+
+    text-decoration:none;
+
+}
+
+button{
+
+    font-family:inherit;
+
+    border:none;
+
+    cursor:pointer;
+
+    background:none;
+
+}
+
+input,
+select,
+textarea{
+
+    font-family:inherit;
+
+    font-size:inherit;
+
+    outline:none;
+
+}
+
+ul,
+ol{
+
+    list-style:none;
+
+}
+
+canvas{
+
+    display:block;
+
+    width:100%;
+
+}
+
+/* ========================================
+   GLOBAL MOTION SETTINGS
+======================================== */
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* ผู้ใช้ที่ปิด Animation ในระบบ ให้เว็บเคารพการตั้งค่า */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* ========================================
+   BUTTON MICRO-INTERACTION
+======================================== */
+
+/* ปุ่มตอบสนองเมื่อ Hover */
+button {
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease;
+}
+
+/* เอฟเฟกต์ตอนกด */
+button:active {
+    transform: scale(0.97);
+}
+
+/* ปุ่มดูความคิดเห็นเพิ่มเติม */
+#viewAllFeedbackBtn {
+    transition:
+        transform 0.2s ease,
+        opacity 0.2s ease;
+}
+
+#viewAllFeedbackBtn:hover {
+    transform: translateX(3px);
+}
+
+/* หน้า Dashboard Fade In */
+.dashboard-content {
+    animation: dashboardEnter 0.4s ease both;
+}
+
+@keyframes dashboardEnter {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
