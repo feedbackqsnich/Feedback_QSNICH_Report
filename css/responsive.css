@@ -217,3 +217,30 @@
 .feedback-item:nth-child(8)  { animation-delay: 245ms; }
 .feedback-item:nth-child(9)  { animation-delay: 280ms; }
 .feedback-item:nth-child(10) { animation-delay: 315ms; }
+
+/* ========================================
+   MOBILE LANDSCAPE RESPONSIVE
+======================================== */
+
+@media screen and (max-width: 950px) and (orientation: landscape) and (max-height: 500px) {
+
+    /* ลดพื้นที่การ์ดความคิดเห็น */
+    .feedback-item {
+        padding: 16px !important;
+        margin-bottom: 12px !important;
+    }
+
+    /* ลดขนาดข้อความภายในการ์ด */
+    .feedback-item h2,
+    .feedback-item h3 {
+        font-size: 20px !important;
+        line-height: 1.4 !important;
+    }
+
+    .feedback-item p,
+    .feedback-full-detail {
+        font-size: 16px !important;
+        line-height: 1.6 !important;
+    }
+
+}
