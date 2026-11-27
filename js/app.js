@@ -653,7 +653,7 @@ function setupFeedbackImageViewer() {
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            margin-top: 12px;
+            margin-top: 0;
             padding: 7px 13px;
             border: 1px solid #d7e3f5;
             border-radius: 8px;
@@ -1220,3 +1220,40 @@ function getFeedbackTypeClass(category) {
 
     return "type-other";
 }
+
+// ==========================================
+// MOBILE HEADER COLLAPSE
+// ==========================================
+
+(() => {
+
+    const hero = document.querySelector(".hero");
+    if (!hero) return;
+
+    const mobileQuery = window.matchMedia("(max-width: 768px)");
+    const scrollThreshold = 80;
+
+    function updateHeader() {
+        if (!mobileQuery.matches) {
+            hero.classList.remove("header-collapsed");
+            return;
+        }
+
+        if (window.scrollY > scrollThreshold) {
+            hero.classList.add("header-collapsed");
+        } else {
+            hero.classList.remove("header-collapsed");
+        }
+    }
+
+    // ยุบ/กางตามตำแหน่งการเลื่อน
+    window.addEventListener("scroll", updateHeader, {
+        passive: true
+    });
+
+    // ตรวจสอบเมื่อเปลี่ยนขนาดหน้าจอ
+    mobileQuery.addEventListener("change", updateHeader);
+
+    updateHeader();
+
+})();

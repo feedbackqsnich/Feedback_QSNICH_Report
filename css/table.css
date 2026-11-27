@@ -1565,7 +1565,7 @@ html {
 /* Mobile */
 @media (max-width: 600px) {
     .feedback-item-header {
-        align-items: flex-start;
+        align-items: center;
     }
 
     .feedback-header-left {
