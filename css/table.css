@@ -160,6 +160,9 @@ tbody tr:hover {
     flex-direction: column;
     gap: 12px;
     margin-top: 8px;
+    max-height: 560px;
+    overflow-y: auto;
+    padding-right: 6px;
 }
 
 /* หัวข้อ Feedback Preview */
@@ -279,14 +282,7 @@ tbody tr:hover {
     line-height: 1.55;
     color: var(--text);
 
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-
-    overflow: hidden;
     overflow-wrap: anywhere;
-    max-height: calc(1.55em * 2);
 }
 
 /* ==============================
@@ -868,13 +864,7 @@ tbody tr:hover {
     font-size: 15px;
     line-height: 1.55;
     color: var(--text);
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    overflow: hidden;
     overflow-wrap: anywhere;
-    max-height: calc(1.55em * 2);
 }
 
 /* ==============================
@@ -1193,15 +1183,6 @@ tbody tr:hover {
    HOMEPAGE FEEDBACK PREVIEW
 ============================== */
 
-/* ป้ายบอกว่าเป็นตัวอย่างความคิดเห็น */
-.feedback-preview-list::before {
-    content: "ความคิดเห็นล่าสุด 10 รายการ";
-    display: block;
-    font-size: 14px;
-    color: #000000;
-    margin-bottom: 2px;
-}
-
 /* ปุ่มดูความคิดเห็นทั้งหมด */
 #viewAllFeedbackBtn {
     display: inline-flex;
@@ -1392,3 +1373,137 @@ html {
     box-shadow: 0 2px 8px rgba(37, 133, 229, 0.12);
 }
 
+.feedback-page-toolbar {
+    display: flex;
+    width: 100%;
+    margin: 16px 0;
+}
+
+.feedback-search-box {
+    width: 100%;
+    max-width: 420px;
+}
+
+.feedback-search-box input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #FFFFFF;
+    color: var(--text);
+    font-family: var(--font-family);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feedback-search-box input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 133, 229, 0.10);
+}
+
+.feedback-search-box input::placeholder {
+    color: var(--subtext);
+}
+
+@media (max-width: 600px) {
+    .feedback-page-toolbar {
+        width: 100%;
+    }
+
+    .feedback-search-box {
+        max-width: none;
+    }
+}
+
+/* ==========================================
+   FEEDBACK TOOLBAR - SEARCH + FILTERS
+========================================== */
+
+.feedback-page-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    margin: 14px 0 16px;
+}
+
+/* ช่องค้นหาอยู่ซ้ายและขยายพื้นที่ */
+.feedback-search-box {
+    flex: 1;
+    min-width: 0;
+}
+
+.feedback-search-box input {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    height: 42px;
+    padding: 0 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #FFFFFF;
+    color: var(--text);
+    font-family: var(--font-family);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feedback-search-box input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(37, 133, 229, 0.10);
+}
+
+.feedback-search-box input::placeholder {
+    color: var(--subtext);
+}
+
+/* ตัวกรอง 4 ปุ่มอยู่ขวา */
+.feedback-page-toolbar .feedback-filter-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    gap: 8px;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+/* ป้องกันปุ่มถูกบีบ */
+.feedback-page-toolbar .feedback-filter-btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+/* Tablet / มือถือ: ให้ค้นหาอยู่ด้านบน ปุ่มอยู่ด้านล่าง */
+@media (max-width: 850px) {
+    .feedback-page-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .feedback-search-box {
+        width: 100%;
+    }
+
+    .feedback-page-toolbar .feedback-filter-bar {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+}
+
+/* มือถือจอเล็ก */
+@media (max-width: 480px) {
+    .feedback-page-toolbar .feedback-filter-bar {
+        gap: 6px;
+    }
+
+    .feedback-page-toolbar .feedback-filter-btn {
+        padding: 7px 11px;
+        font-size: 13px;
+    }
+}

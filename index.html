@@ -7,9 +7,20 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>
-        รายงานความคิดเห็นผู้รับบริการ
-    </title>
+    <title>รายงานความคิดเห็นผู้รับบริการ</title>
+
+    <!-- LINE / Social Preview -->
+    <meta property="og:title" content="รายงานความคิดเห็นผู้รับบริการ">
+    <meta property="og:description" content="Dashboard รายงานความคิดเห็นผู้รับบริการ สถาบันสุขภาพเด็กแห่งชาติมหาราชินี">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://feedback-qsnich-report.feedbackqsnich.workers.dev/">
+    <meta property="og:image"
+        content="https://feedback-qsnich-report.feedbackqsnich.workers.dev/assets/images/Logo%20QSNICH%20พื้นขาว.png">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="รายงานความคิดเห็นผู้รับบริการ">
+    <meta name="twitter:description"
+        content="Dashboard รายงานความคิดเห็นผู้รับบริการ สถาบันสุขภาพเด็กแห่งชาติมหาราชินี">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
 
@@ -257,50 +268,72 @@
 
         </section>
 
-        <!-- ==============================
-     ALL FEEDBACK PREVIEW
-============================== -->
+        <!-- ==========================================
+     ALL FEEDBACK
+========================================== -->
 
-        <section class="section" id="feedback-preview">
+        <section class="section" id="feedback-section">
 
             <div class="card feedback-preview-card">
 
+                <!-- หัวข้อ -->
                 <div class="feedback-preview-header">
                     <h3>ความคิดเห็นจากผู้รับบริการ</h3>
-
-                    <a href="feedback.html" id="viewAllFeedbackBtn" class="feedback-more-link">
-                        ดูความคิดเห็นทั้งหมด →
-                    </a>
                 </div>
 
-                <!-- ตัวกรองประเภทความคิดเห็น -->
-                <div class="feedback-filter-bar" role="group" aria-label="กรองประเภทความคิดเห็น">
+                <!-- Search + Category Filters -->
+                <div class="feedback-page-toolbar">
 
-                    <button type="button" class="feedback-filter-btn active" data-category="all" aria-pressed="true">
-                        ทั้งหมด
-                    </button>
+                    <!-- ช่องค้นหา -->
+                    <div class="feedback-search-box">
+                        <input type="search" id="feedbackSearch" placeholder="ค้นหาความคิดเห็น / หน่วยงาน / สถานที่..."
+                            aria-label="ค้นหาความคิดเห็น">
+                    </div>
 
-                    <button type="button" class="feedback-filter-btn filter-compliment" data-category="compliment"
-                        aria-pressed="false">
-                        คำชม
-                    </button>
+                    <!-- ตัวกรองประเภทความคิดเห็น -->
+                    <div class="feedback-filter-bar" id="feedbackFilterBar" role="group"
+                        aria-label="กรองประเภทความคิดเห็น">
 
-                    <button type="button" class="feedback-filter-btn filter-suggestion" data-category="suggestion"
-                        aria-pressed="false">
-                        ข้อเสนอแนะ
-                    </button>
+                        <button type="button" class="feedback-filter-btn active" data-category="all"
+                            aria-pressed="true">
+                            ทั้งหมด
+                        </button>
 
-                    <button type="button" class="feedback-filter-btn filter-complaint" data-category="complaint"
-                        aria-pressed="false">
-                        ข้อร้องเรียน
-                    </button>
+                        <button type="button" class="feedback-filter-btn filter-compliment" data-category="compliment"
+                            aria-pressed="false">
+                            คำชม
+                        </button>
 
+                        <button type="button" class="feedback-filter-btn filter-suggestion" data-category="suggestion"
+                            aria-pressed="false">
+                            ข้อเสนอแนะ
+                        </button>
+
+                        <button type="button" class="feedback-filter-btn filter-complaint" data-category="complaint"
+                            aria-pressed="false">
+                            ข้อร้องเรียน
+                        </button>
+
+                    </div>
+
+                </div>
+
+                <!-- จำนวนผลลัพธ์ -->
+                <div class="feedback-results-info" id="feedbackResultsInfo">
+                    กำลังโหลดความคิดเห็น...
                 </div>
 
                 <!-- รายการความคิดเห็น -->
                 <div class="feedback-preview-list" id="feedbackPreviewList">
 
-                    <!-- รายการความคิดเห็นจะถูกสร้างด้วย JavaScript -->
+                    <!-- JavaScript สร้างรายการตรงนี้ -->
+
+                </div>
+
+                <!-- Pagination -->
+                <div class="feedback-pagination" id="feedbackPagination" aria-label="เปลี่ยนหน้ารายการความคิดเห็น">
+
+                    <!-- JavaScript สร้างปุ่มตรงนี้ -->
 
                 </div>
 

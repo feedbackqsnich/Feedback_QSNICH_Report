@@ -49,7 +49,17 @@ function getCachedFiscalYear() {
 function saveCachedFiscalYear(year) {
     localStorage.setItem(FISCAL_YEAR_CACHE_KEY, year);
 }
-let previewCategoryFilter = "all";
+
+// ========================================
+// FEEDBACK LIST STATE
+// ========================================
+
+let feedbackCategoryFilter = "all";
+let feedbackSearchQuery = "";
+let feedbackDepartmentFilter = "all";
+
+let currentFeedbackPage = 1;
+const FEEDBACK_PER_PAGE = 10;
 
 // ========================================
 // COUNT-UP ANIMATION
@@ -110,15 +120,15 @@ function setDashboardLoading() {
 
 
     // Loading ในรายการความคิดเห็นล่าสุด
-    const preview = document.getElementById("feedbackPreviewList");
+    const feedbackList = document.getElementById("feedbackPreviewList");
 
-    if (preview) {
-        preview.innerHTML = `
-            <div class="dashboard-loading">
-                <span class="loading-spinner"></span>
-                <span>กำลังโหลดความคิดเห็น...</span>
-            </div>
-        `;
+    if (feedbackList) {
+        feedbackList.innerHTML = `
+        <div class="dashboard-loading">
+            <span class="loading-spinner"></span>
+            <span>กำลังโหลดความคิดเห็น...</span>
+        </div>
+    `;
     }
 
 
@@ -158,14 +168,12 @@ function removeDashboardLoading() {
 
 }
 
-// ==============================
+// ========================================
 // เริ่มต้น Dashboard
-// ==============================
+// ========================================
 
 async function init() {
     try {
-
-        // แสดง Loading ทุกช่องและกราฟ
         setDashboardLoading();
 
         feedbackData = await getFeedbackData();
@@ -173,25 +181,6 @@ async function init() {
         console.log("ข้อมูลจาก Google Sheets:", feedbackData);
 
         const fiscalYearFilter = document.getElementById("fiscalYearFilter");
-
-        // เชื่อมปุ่มดูเพิ่มเติมกับ Filter ปัจจุบัน
-        const viewAllFeedbackBtn = document.getElementById("viewAllFeedbackBtn");
-
-        if (viewAllFeedbackBtn) {
-            viewAllFeedbackBtn.addEventListener("click", () => {
-
-                const selectedYear = fiscalYearFilter
-                    ? fiscalYearFilter.value
-                    : "all";
-
-                const params = new URLSearchParams();
-
-                params.set("year", selectedYear);
-                params.set("category", previewCategoryFilter);
-
-                viewAllFeedbackBtn.href = `feedback.html?${params.toString()}`;
-            });
-        }
 
         // อ่านปีงบประมาณที่จำไว้
         const cachedYear = getCachedFiscalYear();
@@ -203,55 +192,160 @@ async function init() {
             fiscalYearFilter.value = cachedYear;
         }
 
-        // แสดง Dashboard ตามปีงบประมาณที่บันทึกไว้
+        // สร้างรายการหน่วยงานใน Dropdown
+        populateDepartmentFilter(feedbackData);
+
+        // ตั้งค่าตัวกรองประเภทความคิดเห็น
+        setupFeedbackCategoryFilter();
+
+        // ตั้งค่าค้นหา
+        setupFeedbackSearch();
+
+        // ตั้งค่าตัวกรองหน่วยงาน
+        setupFeedbackDepartmentFilter();
+
+        // แสดง Dashboard
         updateDashboard(cachedYear);
 
-        // ฟังการเปลี่ยนปีงบประมาณ + บันทึก Cache
+        // ฟังการเปลี่ยนปีงบประมาณ
         if (fiscalYearFilter) {
             fiscalYearFilter.addEventListener("change", (event) => {
                 const selectedYear = event.target.value;
 
                 saveCachedFiscalYear(selectedYear);
+
+                currentFeedbackPage = 1;
                 updateDashboard(selectedYear);
             });
         }
 
-        // ปุ่มกรองประเภทความคิดเห็น
-        const previewFilterButtons = document.querySelectorAll(".feedback-filter-btn");
-
-        previewFilterButtons.forEach(button => {
-            button.addEventListener("click", () => {
-                previewCategoryFilter = button.dataset.category || "all";
-
-                previewFilterButtons.forEach(btn => {
-                    const active = btn === button;
-
-                    btn.classList.toggle("active", active);
-                    btn.setAttribute("aria-pressed", active ? "true" : "false");
-                });
-
-                const selectedYear = fiscalYearFilter
-                    ? fiscalYearFilter.value
-                    : "all";
-
-                renderFeedbackPreview(
-                    feedbackData,
-                    selectedYear,
-                    previewCategoryFilter
-                );
-            });
-        });
-
     } catch (error) {
-
         console.error("เกิดข้อผิดพลาด:", error);
 
+        const container = document.getElementById("feedbackPreviewList");
+
+        if (container) {
+            container.innerHTML = `
+                <div class="feedback-empty">
+                    ไม่สามารถโหลดข้อมูลความคิดเห็นได้ กรุณาลองใหม่อีกครั้ง
+                </div>
+            `;
+        }
+
     } finally {
-
-        // เอาตัวบังกราฟออกหลังโหลดเสร็จ
         removeDashboardLoading();
-
     }
+}
+
+// ========================================
+// DEPARTMENT FILTER
+// ========================================
+
+function populateDepartmentFilter(data) {
+    const select = document.getElementById("feedbackDepartmentFilter");
+
+    if (!select) return;
+
+    const departments = [...new Set(
+        (data || [])
+            .map(item => String(item.Department || "").trim())
+            .filter(Boolean)
+    )].sort((a, b) => a.localeCompare(b, "th"));
+
+    select.innerHTML = `
+        <option value="all">ทุกหน่วยงาน</option>
+        ${departments.map(department => `
+            <option value="${escapeFeedbackHtml(department)}">
+                ${escapeFeedbackHtml(department)}
+            </option>
+        `).join("")}
+    `;
+}
+
+// ========================================
+// FEEDBACK SEARCH
+// ========================================
+
+function setupFeedbackSearch() {
+    const searchInput = document.getElementById("feedbackSearch");
+
+    if (!searchInput) return;
+
+    searchInput.addEventListener("input", () => {
+        feedbackSearchQuery = searchInput.value.trim().toLowerCase();
+        currentFeedbackPage = 1;
+
+        const fiscalYearFilter = document.getElementById("fiscalYearFilter");
+        const selectedYear = fiscalYearFilter
+            ? fiscalYearFilter.value
+            : "all";
+
+        renderFeedbackPreview(
+            feedbackData,
+            selectedYear,
+            feedbackCategoryFilter
+        );
+    });
+}
+
+// ========================================
+// FEEDBACK CATEGORY FILTER
+// ========================================
+
+function setupFeedbackCategoryFilter() {
+    const filterButtons = document.querySelectorAll(
+        ".feedback-filter-btn"
+    );
+
+    filterButtons.forEach(filterButton => {
+        filterButton.addEventListener("click", () => {
+            feedbackCategoryFilter = filterButton.dataset.category || "all";
+            currentFeedbackPage = 1;
+
+            filterButtons.forEach(btn => {
+                const isActive = btn === filterButton;
+
+                btn.classList.toggle("active", isActive);
+                btn.setAttribute(
+                    "aria-pressed",
+                    isActive ? "true" : "false"
+                );
+            });
+
+            const fiscalYearFilter = document.getElementById("fiscalYearFilter");
+            const selectedYear = fiscalYearFilter
+                ? fiscalYearFilter.value
+                : "all";
+
+            renderFeedbackPreview(
+                feedbackData,
+                selectedYear,
+                feedbackCategoryFilter
+            );
+        });
+    });
+}
+
+function setupFeedbackDepartmentFilter() {
+    const select = document.getElementById("feedbackDepartmentFilter");
+
+    if (!select) return;
+
+    select.addEventListener("change", () => {
+        feedbackDepartmentFilter = select.value || "all";
+        currentFeedbackPage = 1;
+
+        const fiscalYearFilter = document.getElementById("fiscalYearFilter");
+        const selectedYear = fiscalYearFilter
+            ? fiscalYearFilter.value
+            : "all";
+
+        renderFeedbackPreview(
+            feedbackData,
+            selectedYear,
+            feedbackCategoryFilter
+        );
+    });
 }
 
 // ==============================
@@ -439,7 +533,7 @@ function updateDashboard(fiscalYear) {
     renderFeedbackPreview(
         feedbackData,
         fiscalYear,
-        previewCategoryFilter
+        feedbackCategoryFilter
     );
 
     console.log("Dashboard และกราฟอัปเดตสำเร็จ");
@@ -511,49 +605,105 @@ function formatFeedbackDateTime(timestamp) {
     return `${dateText} ${timeText} น.`;
 }
 
-// ==============================
-// แสดงรายการความคิดเห็นล่าสุด
-// ==============================
+// ========================================
+// RENDER FEEDBACK LIST + PAGINATION
+// ========================================
 
 function renderFeedbackPreview(data, fiscalYear = "all", category = "all") {
     const container = document.getElementById("feedbackPreviewList");
+    const pagination = document.getElementById("feedbackPagination");
+    const resultsInfo = document.getElementById("feedbackResultsInfo");
 
     if (!container) return;
 
-    // กรองปีงบประมาณก่อน
-    const fiscalFiltered = filterByFiscalYear(data || [], fiscalYear);
+    // 1. กรองปีงบประมาณ
+    let filtered = filterByFiscalYear(data || [], fiscalYear);
 
-    // กรองประเภทความคิดเห็น
-    const categoryFiltered = category === "all"
-        ? fiscalFiltered
-        : fiscalFiltered.filter(item =>
-            getFeedbackCategoryLabel(item.Category) ===
-            getFeedbackCategoryLabel(category)
+    // 2. กรองประเภทความคิดเห็น
+    if (category !== "all") {
+        const targetCategory = getFeedbackCategoryLabel(category);
+
+        filtered = filtered.filter(item =>
+            getFeedbackCategoryLabel(item.Category) === targetCategory
         );
+    }
 
-    // เรียงใหม่จากวันที่ล่าสุด และเอาเฉพาะ 10 รายการ
-    const latestFeedback = [...categoryFiltered]
-        .filter(item =>
-            item.Timestamp &&
-            !isNaN(new Date(item.Timestamp).getTime())
-        )
-        .sort((a, b) =>
-            new Date(b.Timestamp) - new Date(a.Timestamp)
-        )
-        .slice(0, 10);
+    // 3. กรองหน่วยงาน
+    if (feedbackDepartmentFilter !== "all") {
+        filtered = filtered.filter(item =>
+            String(item.Department || "").trim() === feedbackDepartmentFilter
+        );
+    }
 
-    // กรณีไม่มีข้อมูล
-    if (!latestFeedback.length) {
+    // 4. ค้นหา
+    if (feedbackSearchQuery) {
+        filtered = filtered.filter(item => {
+            const searchableText = [
+                item.Detail,
+                item.Department,
+                item.Building,
+                item.Floor,
+                getFeedbackCategoryLabel(item.Category),
+                item.Timestamp
+            ]
+                .map(value => String(value || ""))
+                .join(" ")
+                .toLowerCase();
+
+            return searchableText.includes(feedbackSearchQuery);
+        });
+    }
+
+    // 5. เรียงวันที่ล่าสุดก่อน
+    // วันที่ผิดหรือไม่มีวันที่จะอยู่ท้ายรายการ
+    filtered.sort((a, b) => {
+        const dateA = a.Timestamp ? new Date(a.Timestamp).getTime() : NaN;
+        const dateB = b.Timestamp ? new Date(b.Timestamp).getTime() : NaN;
+
+        const validA = Number.isFinite(dateA);
+        const validB = Number.isFinite(dateB);
+
+        if (validA && validB) return dateB - dateA;
+        if (validA) return -1;
+        if (validB) return 1;
+
+        return 0;
+    });
+
+    // 6. Pagination
+    const totalItems = filtered.length;
+    const totalPages = Math.ceil(totalItems / FEEDBACK_PER_PAGE);
+
+    currentFeedbackPage = totalPages === 0
+        ? 1
+        : Math.min(Math.max(currentFeedbackPage, 1), totalPages);
+
+    const startIndex = (currentFeedbackPage - 1) * FEEDBACK_PER_PAGE;
+    const endIndex = Math.min(startIndex + FEEDBACK_PER_PAGE, totalItems);
+
+    const pageItems = filtered.slice(startIndex, endIndex);
+
+    // 7. แสดงจำนวนรายการ
+    if (resultsInfo) {
+        resultsInfo.textContent = totalItems > 0
+            ? `พบ ${totalItems.toLocaleString("th-TH")} รายการ · หน้า ${currentFeedbackPage.toLocaleString("th-TH")} จาก ${totalPages.toLocaleString("th-TH")}`
+            : "ไม่พบความคิดเห็น";
+    }
+
+    // 8. กรณีไม่มีข้อมูล
+    if (!pageItems.length) {
         container.innerHTML = `
             <div class="feedback-empty">
-                ไม่มีข้อมูลความคิดเห็นในตัวกรองนี้
+                ไม่พบความคิดเห็น
             </div>
         `;
+
+        if (pagination) pagination.innerHTML = "";
         return;
     }
 
-    // สร้างการ์ดความคิดเห็น
-    container.innerHTML = latestFeedback.map(item => {
+    // 9. Render รายการความคิดเห็น
+    container.innerHTML = pageItems.map(item => {
         const label = getFeedbackCategoryLabel(item.Category);
         const dateTime = formatFeedbackDateTime(item.Timestamp);
 
@@ -564,66 +714,211 @@ function renderFeedbackPreview(data, fiscalYear = "all", category = "all") {
         const building = String(item.Building || "").trim();
         const floor = String(item.Floor || "").trim();
 
-        // ตรวจสอบว่าเป็นลานจอดรถหรือไม่
+        // ซ่อนสถานที่กรณีลานจอดรถ
         const isParking =
             /ลานจอดรถ/.test(department) ||
             /ลานจอดรถ/.test(building);
 
         let locationLine = "";
 
-        if (isParking) {
-            // ลานจอดรถไม่แสดงสถานที่หรือข้อมูลอาคารซ้ำ
-            locationLine = "";
-        } else {
+        if (!isParking) {
             const locationParts = [];
 
-            if (floor) {
-                locationParts.push(`ชั้น ${floor}`);
-            }
-
-            if (building) {
-                locationParts.push(building);
-            }
+            if (floor) locationParts.push(`ชั้น ${floor}`);
+            if (building) locationParts.push(building);
 
             locationLine = locationParts.join(" ") || "ไม่ระบุสถานที่";
         }
 
+        // แสดงข้อความเต็ม
         const detail = String(item.Detail || "ไม่มีรายละเอียด")
-            .replace(/\r\n/g, " ")
-            .replace(/\n/g, " ")
-            .replace(/\r/g, " ")
-            .replace(/\\n/g, " ")
-            .replace(/\s+/g, " ")
+            .replace(/\r\n/g, "\n")
+            .replace(/\r/g, "\n")
+            .replace(/\\n/g, "\n")
             .trim();
 
         return `
-        <article class="feedback-item">
+            <article class="feedback-item">
 
-            <div class="feedback-item-header">
-                <span class="feedback-type ${getFeedbackTypeClass(item.Category)}">
-                    ${escapeFeedbackHtml(label)}
-                </span>
+                <div class="feedback-item-header">
+                    <span class="feedback-type ${getFeedbackTypeClass(item.Category)}">
+                        ${escapeFeedbackHtml(label)}
+                    </span>
 
-                <span class="feedback-date">
-                    ${escapeFeedbackHtml(dateTime)}
-                </span>
-            </div>
-
-            <div class="feedback-department">
-                ${escapeFeedbackHtml(department)}
-            </div>
-
-            ${locationLine ? `
-                <div class="feedback-location">
-                    ${escapeFeedbackHtml(locationLine)}
+                    <span class="feedback-date">
+                        ${escapeFeedbackHtml(dateTime)}
+                    </span>
                 </div>
-            ` : ""}
 
-            <div class="feedback-detail-preview" title="${escapeFeedbackHtml(detail)}">${escapeFeedbackHtml(detail)}</div>
+                <div class="feedback-department">
+                    ${escapeFeedbackHtml(department)}
+                </div>
 
-        </article>
-    `;
+                ${locationLine ? `
+                    <div class="feedback-location">
+                        ${escapeFeedbackHtml(locationLine)}
+                    </div>
+                ` : ""}
+
+                <div class="feedback-detail-preview">
+                    ${escapeFeedbackHtml(detail)}
+                </div>
+
+            </article>
+        `;
     }).join("");
+
+    // 10. สร้าง Pagination
+    renderFeedbackPagination(
+        totalPages,
+        startIndex,
+        endIndex,
+        totalItems
+    );
+}
+
+// ========================================
+// FEEDBACK PAGINATION
+// ========================================
+
+function renderFeedbackPagination(
+    totalPages,
+    startIndex,
+    endIndex,
+    totalItems
+) {
+    const container = document.getElementById("feedbackPagination");
+
+    if (!container) return;
+
+    if (totalPages <= 1) {
+        container.innerHTML = "";
+        return;
+    }
+
+    // สร้างชุดเลขหน้าที่ต้องแสดง
+    let pages = [];
+
+    if (totalPages <= 7) {
+        pages = Array.from(
+            { length: totalPages },
+            (_, i) => i + 1
+        );
+    } else {
+        const pageSet = new Set([
+            1,
+            totalPages,
+            currentFeedbackPage,
+            currentFeedbackPage - 1,
+            currentFeedbackPage + 1,
+            currentFeedbackPage - 2,
+            currentFeedbackPage + 2
+        ]);
+
+        pages = [...pageSet]
+            .filter(page => page >= 1 && page <= totalPages)
+            .sort((a, b) => a - b);
+    }
+
+    // เพิ่ม ... เมื่อมีช่วงเลขหน้าขาด
+    const pageItems = [];
+
+    for (let i = 0; i < pages.length; i++) {
+        if (i > 0 && pages[i] - pages[i - 1] > 1) {
+            pageItems.push("ellipsis");
+        }
+
+        pageItems.push(pages[i]);
+    }
+
+    // ปุ่มก่อนหน้า
+    let html = `
+        <button
+            type="button"
+            data-page="${currentFeedbackPage - 1}"
+            aria-label="หน้าก่อนหน้า"
+            ${currentFeedbackPage === 1 ? "disabled" : ""}
+        >
+            ‹
+        </button>
+    `;
+
+    // ปุ่มเลขหน้า
+    pageItems.forEach(page => {
+        if (page === "ellipsis") {
+            html += `
+                <span class="pagination-ellipsis" aria-hidden="true">
+                    …
+                </span>
+            `;
+        } else {
+            html += `
+                <button
+                    type="button"
+                    data-page="${page}"
+                    class="${page === currentFeedbackPage ? "active" : ""}"
+                    ${page === currentFeedbackPage ? 'aria-current="page"' : ""}
+                >
+                    ${page.toLocaleString("th-TH")}
+                </button>
+            `;
+        }
+    });
+
+    // ปุ่มถัดไป
+    html += `
+        <button
+            type="button"
+            data-page="${currentFeedbackPage + 1}"
+            aria-label="หน้าถัดไป"
+            ${currentFeedbackPage === totalPages ? "disabled" : ""}
+        >
+            ›
+        </button>
+    `;
+
+    container.innerHTML = html;
+
+    // Event เปลี่ยนหน้า
+    container.onclick = event => {
+        const button = event.target.closest("button[data-page]");
+
+        if (!button || button.disabled) return;
+
+        const targetPage = Number(button.dataset.page);
+
+        if (
+            !Number.isInteger(targetPage) ||
+            targetPage < 1 ||
+            targetPage > totalPages ||
+            targetPage === currentFeedbackPage
+        ) {
+            return;
+        }
+
+        currentFeedbackPage = targetPage;
+
+        const fiscalYearFilter = document.getElementById("fiscalYearFilter");
+        const selectedYear = fiscalYearFilter
+            ? fiscalYearFilter.value
+            : "all";
+
+        renderFeedbackPreview(
+            feedbackData,
+            selectedYear,
+            feedbackCategoryFilter
+        );
+
+        // เลื่อนเฉพาะไปยังหัวข้อความคิดเห็น
+        const feedbackSection = document.getElementById("feedback-section");
+
+        if (feedbackSection) {
+            feedbackSection.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+    };
 }
 
 // ==============================
