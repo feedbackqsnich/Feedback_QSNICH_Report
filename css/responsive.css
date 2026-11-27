@@ -374,3 +374,30 @@
     }
 
 }
+
+/* ==========================================
+   MOBILE LANDSCAPE
+   ใช้ขนาดเดียวกับ MOBILE PORTRAIT
+========================================== */
+
+@media (max-width: 768px) and (orientation: landscape) {
+
+    .hero {
+        flex-direction: column;
+        text-align: center;
+        align-items: center;
+    }
+
+    .hero-title h1 {
+        font-size: 30px;
+    }
+
+    .hero-title h2 {
+        font-size: 18px;
+    }
+
+    .feedback-item {
+        font-size: 16px;
+    }
+
+}
