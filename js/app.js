@@ -71,7 +71,6 @@ function animateCount(element, targetValue, duration = 700) {
     const target = Number(targetValue) || 0;
     const startTime = performance.now();
 
-    // ป้องกัน Animation ซ้อนกัน
     if (element._countAnimationFrame) {
         cancelAnimationFrame(element._countAnimationFrame);
     }
@@ -82,9 +81,7 @@ function animateCount(element, targetValue, duration = 700) {
             1
         );
 
-        // Ease-out ให้เริ่มเร็วแล้วค่อย ๆ ช้าลง
         const eased = 1 - Math.pow(1 - progress, 3);
-
         const currentValue = Math.round(target * eased);
 
         element.textContent = currentValue.toLocaleString("th-TH");
@@ -106,8 +103,6 @@ function animateCount(element, targetValue, duration = 700) {
 // ==============================
 
 function setDashboardLoading() {
-
-    // Loading ในตัวเลขสรุป
     const summaryValues = document.querySelectorAll(
         ".summary-card .summary-value"
     );
@@ -118,24 +113,18 @@ function setDashboardLoading() {
         `;
     });
 
-
-    // Loading ในรายการความคิดเห็นล่าสุด
     const feedbackList = document.getElementById("feedbackPreviewList");
 
     if (feedbackList) {
         feedbackList.innerHTML = `
-        <div class="dashboard-loading">
-            <span class="loading-spinner"></span>
-            <span>กำลังโหลดความคิดเห็น...</span>
-        </div>
-    `;
+            <div class="dashboard-loading">
+                <span class="loading-spinner"></span>
+                <span>กำลังโหลดความคิดเห็น...</span>
+            </div>
+        `;
     }
 
-
-    // Loading ในพื้นที่กราฟ
     document.querySelectorAll(".chart-wrapper").forEach(wrapper => {
-
-        // ป้องกัน Loading ซ้ำ
         if (wrapper.querySelector(".chart-loading")) return;
 
         wrapper.style.position = "relative";
@@ -149,23 +138,17 @@ function setDashboardLoading() {
         `;
 
         wrapper.appendChild(loading);
-
     });
-
 }
-
 
 // ==============================
 // REMOVE DASHBOARD LOADING
 // ==============================
 
 function removeDashboardLoading() {
-
-    // เอาตัว Loading ออกจากพื้นที่กราฟทั้งหมด
     document.querySelectorAll(".chart-loading").forEach(loading => {
         loading.remove();
     });
-
 }
 
 // ========================================
@@ -181,8 +164,6 @@ async function init() {
         console.log("ข้อมูลจาก Google Sheets:", feedbackData);
 
         const fiscalYearFilter = document.getElementById("fiscalYearFilter");
-
-        // อ่านปีงบประมาณที่จำไว้
         const cachedYear = getCachedFiscalYear();
 
         if (
@@ -192,22 +173,13 @@ async function init() {
             fiscalYearFilter.value = cachedYear;
         }
 
-        // สร้างรายการหน่วยงานใน Dropdown
         populateDepartmentFilter(feedbackData);
-
-        // ตั้งค่าตัวกรองประเภทความคิดเห็น
         setupFeedbackCategoryFilter();
-
-        // ตั้งค่าค้นหา
         setupFeedbackSearch();
-
-        // ตั้งค่าตัวกรองหน่วยงาน
         setupFeedbackDepartmentFilter();
 
-        // แสดง Dashboard
         updateDashboard(cachedYear);
 
-        // ฟังการเปลี่ยนปีงบประมาณ
         if (fiscalYearFilter) {
             fiscalYearFilter.addEventListener("change", (event) => {
                 const selectedYear = event.target.value;
@@ -353,7 +325,6 @@ function setupFeedbackDepartmentFilter() {
 // ==============================
 
 window.addEventListener("pageshow", (event) => {
-    // ทำงานเฉพาะกรณี Browser คืนหน้าจอจาก Back/Forward Cache
     if (!event.persisted) return;
 
     const fiscalYearFilter = document.getElementById("fiscalYearFilter");
@@ -382,7 +353,6 @@ function filterByFiscalYear(data, fiscalYear) {
         const date = new Date(item.Timestamp);
         if (isNaN(date.getTime())) return false;
 
-        // อ่านปีและเดือนตามเวลาไทย
         const parts = new Intl.DateTimeFormat("en-US", {
             year: "numeric",
             month: "numeric",
@@ -397,7 +367,6 @@ function filterByFiscalYear(data, fiscalYear) {
             parts.find(part => part.type === "month")?.value
         );
 
-        // ปีงบประมาณเริ่มเดือนตุลาคม
         const thaiFiscalYear = month >= 10
             ? year + 544
             : year + 543;
@@ -411,13 +380,11 @@ function filterByFiscalYear(data, fiscalYear) {
 // ==============================
 
 function updateDashboard(fiscalYear) {
-
     const filteredData = filterByFiscalYear(feedbackData, fiscalYear);
 
     console.log("ปีงบประมาณที่เลือก:", fiscalYear);
     console.log("ข้อมูลหลังกรอง:", filteredData);
 
-    // สรุปจำนวนความคิดเห็น
     const summary = {
         compliment: filteredData.filter(
             item => item.Category === "compliment"
@@ -437,7 +404,6 @@ function updateDashboard(fiscalYear) {
         summary.suggestion +
         summary.complaint;
 
-    // คำนวณเปอร์เซ็นต์
     const getPercent = value => {
         return summary.total === 0
             ? 0
@@ -465,10 +431,6 @@ function updateDashboard(fiscalYear) {
         complimentMeta.textContent = `${getPercent(summary.compliment)}% ของทั้งหมด`;
     }
 
-    // ==============================
-    // อัปเดต Summary Cards
-    // ==============================
-
     const complimentCard = document.querySelector(
         ".summary-card.compliment .summary-value"
     );
@@ -485,18 +447,10 @@ function updateDashboard(fiscalYear) {
         ".summary-card.total .summary-value"
     );
 
-    // ========================================
-    // COUNT-UP SUMMARY
-    // ========================================
-
     animateCount(complimentCard, summary.compliment);
     animateCount(suggestionCard, summary.suggestion);
     animateCount(complaintCard, summary.complaint);
     animateCount(totalCard, summary.total);
-
-    // ==============================
-    // อัปเดต Legend
-    // ==============================
 
     const legendCompliment = document.getElementById("legendCompliment");
     const legendSuggestion = document.getElementById("legendSuggestion");
@@ -506,15 +460,7 @@ function updateDashboard(fiscalYear) {
     if (legendSuggestion) legendSuggestion.textContent = summary.suggestion;
     if (legendComplaint) legendComplaint.textContent = summary.complaint;
 
-    // ==============================
-    // เตรียมข้อมูลกราฟ
-    // ==============================
-
     prepareChartData(filteredData, fiscalYear);
-
-    // ==============================
-    // อัปเดตตัวเลขกลางกราฟ
-    // ==============================
 
     const pieCenterValue = document.getElementById("pieCenterValue");
 
@@ -522,14 +468,8 @@ function updateDashboard(fiscalYear) {
         pieCenterValue.textContent = summary.total;
     }
 
-    // ==============================
-    // สร้าง / อัปเดตกราฟ
-    // ==============================
-
     initCharts();
 
-    // อัปเดตรายการความคิดเห็นตามปีงบประมาณที่เลือก
-    // ใช้ feedbackData ทั้งหมด เพื่อให้กรองปีได้ในฟังก์ชัน Preview
     renderFeedbackPreview(
         feedbackData,
         fiscalYear,
@@ -541,7 +481,6 @@ function updateDashboard(fiscalYear) {
 
 // ==============================
 // แสดงความคิดเห็นล่าสุด 10 รายการ
-// พร้อมตัวกรองปีงบประมาณและประเภท
 // ==============================
 
 function escapeFeedbackHtml(value) {
@@ -606,15 +545,341 @@ function formatFeedbackDateTime(timestamp) {
 }
 
 // ========================================
+// FEEDBACK IMAGE VIEWER - รองรับรูปทุกประเภทความคิดเห็น
+// ========================================
+
+
+function getFeedbackImageUrls(item) {
+    if (!item || typeof item !== "object") return [];
+
+    const images = [];
+
+    function addImage(value) {
+        if (value == null) return;
+
+        if (Array.isArray(value)) {
+            value.forEach(addImage);
+            return;
+        }
+
+        if (typeof value === "object") {
+            Object.values(value).forEach(addImage);
+            return;
+        }
+
+        const text = String(value).trim();
+        if (!text) return;
+
+        // รองรับข้อมูลที่เก็บเป็น JSON
+        try {
+            if (
+                (text.startsWith("[") && text.endsWith("]")) ||
+                (text.startsWith("{") && text.endsWith("}"))
+            ) {
+                addImage(JSON.parse(text));
+                return;
+            }
+        } catch (e) { }
+
+        // แยกข้อมูลหลายรายการ
+        const parts = text.split(/[\n,]+/).map(v => v.trim()).filter(Boolean);
+
+        parts.forEach(part => {
+            // กรณีเป็น URL
+            const urlMatches = part.match(/https?:\/\/[^\s"'<>]+/gi);
+
+            if (urlMatches) {
+                urlMatches.forEach(rawUrl => {
+                    const url = rawUrl.replace(/[),.;]+$/, "");
+
+                    let driveId = "";
+
+                    const match = url.match(
+                        /(?:\/file\/d\/|[?&]id=)([a-zA-Z0-9_-]+)/
+                    );
+
+                    if (/drive\.google\.com/i.test(url) && match) {
+                        driveId = match[1];
+                    }
+
+                    const image = driveId
+                        ? { id: driveId, type: "drive" }
+                        : { id: url, type: "url" };
+
+                    if (!images.some(img => img.id === image.id)) {
+                        images.push(image);
+                    }
+                });
+
+                return;
+            }
+
+            // กรณีเป็น Google Drive ID ล้วนจากชีต
+            // Drive ID ปกติเป็นตัวอักษร/ตัวเลข/_/- และมีความยาวค่อนข้างมาก
+            if (/^[a-zA-Z0-9_-]{20,}$/.test(part)) {
+                if (!images.some(img => img.id === part)) {
+                    images.push({
+                        id: part,
+                        type: "drive"
+                    });
+                }
+            }
+        });
+    }
+
+    // ตรวจทุก field ในข้อมูล
+    Object.values(item).forEach(addImage);
+
+    return images;
+}
+
+function getFeedbackImagePreviewUrl(image) {
+    if (!image) return "";
+
+    if (image.type === "drive") {
+        return `https://drive.google.com/thumbnail?id=${encodeURIComponent(image.id)}&sz=w1600`;
+    }
+
+    return image.id;
+}
+
+function setupFeedbackImageViewer() {
+    if (document.getElementById("feedbackImageModal")) return;
+
+    const style = document.createElement("style");
+
+    style.textContent = `
+        .feedback-image-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 12px;
+            padding: 7px 13px;
+            border: 1px solid #d7e3f5;
+            border-radius: 8px;
+            background: #f4f8ff;
+            color: #3569b5;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all .2s ease;
+        }
+
+        .feedback-image-btn:hover {
+            background: #e8f1ff;
+            border-color: #9bbce8;
+        }
+
+        .feedback-image-btn .material-symbols-rounded {
+            font-size: 18px;
+        }
+
+        .feedback-image-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(15, 23, 42, .78);
+            padding: 24px;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feedback-image-modal.show {
+            display: flex;
+        }
+
+        .feedback-image-modal-content {
+            position: relative;
+            width: min(900px, 100%);
+            max-height: 90vh;
+            overflow: auto;
+            background: #fff;
+            border-radius: 14px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,.25);
+        }
+
+        .feedback-image-modal-close {
+            position: sticky;
+            top: 0;
+            float: right;
+            z-index: 2;
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            background: #f1f3f5;
+            color: #333;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .feedback-image-modal-title {
+            margin: 0 45px 16px 0;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .feedback-image-modal-gallery {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .feedback-image-modal-gallery img {
+            display: block;
+            width: 100%;
+            max-height: 75vh;
+            object-fit: contain;
+            border-radius: 8px;
+            background: #f5f5f5;
+        }
+
+        .feedback-image-modal-item {
+            padding-bottom: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .feedback-image-modal-item a {
+            display: block;
+            text-align: center;
+            font-size: 13px;
+            margin-top: 6px;
+        }
+
+        @media (max-width: 600px) {
+            .feedback-image-modal {
+                padding: 10px;
+            }
+
+            .feedback-image-modal-content {
+                padding: 14px;
+                border-radius: 10px;
+            }
+        }
+    `;
+
+    document.head.appendChild(style);
+
+    const modal = document.createElement("div");
+
+    modal.id = "feedbackImageModal";
+    modal.className = "feedback-image-modal";
+
+    modal.innerHTML = `
+        <div class="feedback-image-modal-content">
+            <button type="button"
+                class="feedback-image-modal-close"
+                aria-label="ปิด">
+                ×
+            </button>
+
+            <h3 class="feedback-image-modal-title">
+                รูปภาพที่แนบมา
+            </h3>
+
+            <div class="feedback-image-modal-gallery"
+                id="feedbackImageModalGallery">
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    function closeModal() {
+        modal.classList.remove("show");
+        document.body.style.overflow = "";
+    }
+
+    modal.querySelector(".feedback-image-modal-close")
+        .addEventListener("click", closeModal);
+
+    modal.addEventListener("click", event => {
+        if (event.target === modal) {
+            closeModal();
+        }
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && modal.classList.contains("show")) {
+            closeModal();
+        }
+    });
+
+    // Event delegation รองรับปุ่มที่ถูกสร้างใหม่ทุกครั้ง
+    document.addEventListener("click", event => {
+        const button = event.target.closest(".feedback-image-btn");
+
+        if (!button) return;
+
+        let urls = [];
+
+        try {
+            urls = JSON.parse(
+                decodeURIComponent(button.dataset.images || "%5B%5D")
+            );
+        } catch (error) {
+            console.error("อ่านลิงก์รูปไม่สำเร็จ:", error);
+            return;
+        }
+
+        const gallery = document.getElementById("feedbackImageModalGallery");
+
+        if (!gallery) return;
+
+        gallery.innerHTML = urls.map(image => {
+            const previewUrl = getFeedbackImagePreviewUrl(image);
+
+            const originalUrl = image.type === "drive"
+                ? `https://drive.google.com/uc?export=view&id=${encodeURIComponent(image.id)}`
+                : image.id;
+
+            const safeOriginalUrl = escapeFeedbackHtml(originalUrl);
+            const safePreviewUrl = escapeFeedbackHtml(previewUrl);
+
+            return `
+        <div class="feedback-image-modal-item">
+            <img
+                src="${safePreviewUrl}"
+                alt="รูปที่แนบมา"
+                loading="lazy"
+                onerror="this.alt='ไม่สามารถแสดงภาพตัวอย่างได้ กรุณาเปิดรูปต้นฉบับ'; this.style.display='none'"
+            >
+
+            <a
+                href="${safeOriginalUrl}"
+                target="_blank"
+                rel="noopener noreferrer">
+                คลิกที่นี่เพื่อเปิดรูปต้นฉบับจาก Google Drive
+            </a>
+        </div>
+    `;
+        }).join("");
+
+        modal.classList.add("show");
+        document.body.style.overflow = "hidden";
+    });
+}
+
+
+// ========================================
 // RENDER FEEDBACK LIST + PAGINATION
 // ========================================
 
-function renderFeedbackPreview(data, fiscalYear = "all", category = "all") {
+function renderFeedbackPreview(
+    data,
+    fiscalYear = "all",
+    category = "all"
+) {
     const container = document.getElementById("feedbackPreviewList");
     const pagination = document.getElementById("feedbackPagination");
     const resultsInfo = document.getElementById("feedbackResultsInfo");
 
     if (!container) return;
+
+    setupFeedbackImageViewer();
 
     // 1. กรองปีงบประมาณ
     let filtered = filterByFiscalYear(data || [], fiscalYear);
@@ -655,7 +920,6 @@ function renderFeedbackPreview(data, fiscalYear = "all", category = "all") {
     }
 
     // 5. เรียงวันที่ล่าสุดก่อน
-    // วันที่ผิดหรือไม่มีวันที่จะอยู่ท้ายรายการ
     filtered.sort((a, b) => {
         const dateA = a.Timestamp ? new Date(a.Timestamp).getTime() : NaN;
         const dateB = b.Timestamp ? new Date(b.Timestamp).getTime() : NaN;
@@ -694,7 +958,7 @@ function renderFeedbackPreview(data, fiscalYear = "all", category = "all") {
     if (!pageItems.length) {
         container.innerHTML = `
             <div class="feedback-empty">
-                ไม่พบความคิดเห็น
+                ไม่พบความคิดเห็นในตัวกรองนี้
             </div>
         `;
 
@@ -706,6 +970,8 @@ function renderFeedbackPreview(data, fiscalYear = "all", category = "all") {
     container.innerHTML = pageItems.map(item => {
         const label = getFeedbackCategoryLabel(item.Category);
         const dateTime = formatFeedbackDateTime(item.Timestamp);
+
+
 
         const department = String(
             item.Department || "ไม่ระบุหน่วยงาน"
@@ -730,25 +996,44 @@ function renderFeedbackPreview(data, fiscalYear = "all", category = "all") {
             locationLine = locationParts.join(" ") || "ไม่ระบุสถานที่";
         }
 
-        // แสดงข้อความเต็ม
+        // แสดงข้อความความคิดเห็นเต็ม
         const detail = String(item.Detail || "ไม่มีรายละเอียด")
             .replace(/\r\n/g, "\n")
             .replace(/\r/g, "\n")
             .replace(/\\n/g, "\n")
             .trim();
 
+        // รูปแนบ: รองรับทุกประเภทความคิดเห็น
+        const imageUrls = getFeedbackImageUrls(item);
+
+        const imageButtonHTML = imageUrls.length > 0
+            ? `
+        <button
+            type="button"
+            class="feedback-image-btn"
+            data-images="${encodeURIComponent(JSON.stringify(imageUrls))}">
+            <span class="material-symbols-rounded">image</span>
+            ดูรูปภาพที่แนบมา
+        </button>
+    `
+            : "";
+
         return `
             <article class="feedback-item">
 
                 <div class="feedback-item-header">
-                    <span class="feedback-type ${getFeedbackTypeClass(item.Category)}">
-                        ${escapeFeedbackHtml(label)}
-                    </span>
+    <div class="feedback-header-left">
+        <span class="feedback-type ${getFeedbackTypeClass(item.Category)}">
+            ${escapeFeedbackHtml(label)}
+        </span>
 
-                    <span class="feedback-date">
-                        ${escapeFeedbackHtml(dateTime)}
-                    </span>
-                </div>
+        ${imageButtonHTML}
+    </div>
+
+    <span class="feedback-date">
+        ${escapeFeedbackHtml(dateTime)}
+    </span>
+</div>
 
                 <div class="feedback-department">
                     ${escapeFeedbackHtml(department)}
@@ -776,6 +1061,7 @@ function renderFeedbackPreview(data, fiscalYear = "all", category = "all") {
         totalItems
     );
 }
+
 
 // ========================================
 // FEEDBACK PAGINATION
@@ -909,13 +1195,13 @@ function renderFeedbackPagination(
             feedbackCategoryFilter
         );
 
-        // เลื่อนเฉพาะไปยังหัวข้อความคิดเห็น
-        const feedbackSection = document.getElementById("feedback-section");
+        // เลื่อนรายการความคิดเห็นกลับไปบนสุดเมื่อเปลี่ยนหน้า
+        const feedbackList = document.getElementById("feedbackPreviewList");
 
-        if (feedbackSection) {
-            feedbackSection.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
+        if (feedbackList) {
+            feedbackList.scrollTo({
+                top: 0,
+                behavior: "smooth"
             });
         }
     };

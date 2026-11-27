@@ -1507,3 +1507,105 @@ html {
         font-size: 13px;
     }
 }
+
+/* ========================================
+   FEEDBACK IMAGE BUTTON - HEADER PILL
+======================================== */
+
+.feedback-header-left {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    min-width: 0;
+}
+
+.feedback-image-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+
+    width: auto;
+    height: 27px;
+    margin: 0;
+    padding: 0 10px;
+
+    border: 1px solid #d7e4f7;
+    border-radius: 999px;
+
+    background: #f3f7ff;
+    color: #3975cc;
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+
+    cursor: pointer;
+    transition: background .2s, border-color .2s, color .2s;
+}
+
+.feedback-image-btn:hover {
+    background: #e7f0ff;
+    border-color: #b7d0f5;
+    color: #245da8;
+}
+
+.feedback-image-btn:active {
+    transform: scale(.97);
+}
+
+.feedback-image-btn .material-symbols-rounded {
+    font-size: 16px;
+    line-height: 1;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .feedback-item-header {
+        align-items: flex-start;
+    }
+
+    .feedback-header-left {
+        gap: 6px;
+    }
+
+    .feedback-image-btn {
+        height: 26px;
+        padding: 0 8px;
+        font-size: 11px;
+    }
+}
+
+/* Image modal close button - centered X, stays right */
+.feedback-image-modal-close {
+    position: absolute;
+    top: 20px;
+    right: 18px;
+    z-index: 10;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    margin: 0;
+
+    border: none;
+    border-radius: 50%;
+    box-sizing: border-box;
+
+    line-height: 1;
+    text-align: center;
+
+    float: none;
+    transform: none;
+}
+
+.feedback-image-modal-close {
+    padding-bottom: 6px;
+}
