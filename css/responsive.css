@@ -27,56 +27,56 @@
 
     }
 
+    /* ---------- Mobile Header: Compact ---------- */
+
     .hero {
-
-        flex-direction: column;
-
-        text-align: center;
-
-        gap: 24px;
-
+        flex-direction: row;
+        text-align: left;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
     }
 
     .hero-left {
-
-        flex-direction: column;
-
-        gap: 16px;
-
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
     }
 
     .hero-logo {
+        width: 38px;
+        flex-shrink: 0;
+    }
 
-        width: 72px;
-
+    .hero-title {
+        min-width: 0;
     }
 
     .hero-title h1 {
-
-        font-size: 30px;
-
+        font-size: 20px;
+        margin-bottom: 0;
+        line-height: 1.2;
     }
 
     .hero-title h2 {
-
-        font-size: 18px;
-
+        font-size: 13px;
+        line-height: 1.3;
     }
 
     .hero-right {
-
-        width: 100%;
-
+        width: auto;
+        flex-shrink: 1;
     }
 
     .update-card {
-
-        width: 100%;
-
-        max-width: 320px;
-
-        margin: auto;
-
+        width: auto;
+        min-width: 0;
+        max-width: none;
+        margin: 0;
+        padding: 6px 10px;
+        border-radius: 10px;
+        box-shadow: none;
     }
 
     .dashboard-filter {
@@ -207,14 +207,98 @@
 }
 
 /* ทยอยแสดงรายการ */
-.feedback-item:nth-child(1)  { animation-delay: 0ms; }
-.feedback-item:nth-child(2)  { animation-delay: 35ms; }
-.feedback-item:nth-child(3)  { animation-delay: 70ms; }
-.feedback-item:nth-child(4)  { animation-delay: 105ms; }
-.feedback-item:nth-child(5)  { animation-delay: 140ms; }
-.feedback-item:nth-child(6)  { animation-delay: 175ms; }
-.feedback-item:nth-child(7)  { animation-delay: 210ms; }
-.feedback-item:nth-child(8)  { animation-delay: 245ms; }
-.feedback-item:nth-child(9)  { animation-delay: 280ms; }
-.feedback-item:nth-child(10) { animation-delay: 315ms; }
+.feedback-item:nth-child(1) {
+    animation-delay: 0ms;
+}
 
+.feedback-item:nth-child(2) {
+    animation-delay: 35ms;
+}
+
+.feedback-item:nth-child(3) {
+    animation-delay: 70ms;
+}
+
+.feedback-item:nth-child(4) {
+    animation-delay: 105ms;
+}
+
+.feedback-item:nth-child(5) {
+    animation-delay: 140ms;
+}
+
+.feedback-item:nth-child(6) {
+    animation-delay: 175ms;
+}
+
+.feedback-item:nth-child(7) {
+    animation-delay: 210ms;
+}
+
+.feedback-item:nth-child(8) {
+    animation-delay: 245ms;
+}
+
+.feedback-item:nth-child(9) {
+    animation-delay: 280ms;
+}
+
+.feedback-item:nth-child(10) {
+    animation-delay: 315ms;
+}
+
+@media (max-width: 600px) {
+
+    .hero {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+
+    .hero-left {
+        gap: 8px;
+    }
+
+    .hero-logo {
+        width: 34px;
+    }
+
+    .hero-title h1 {
+        font-size: 18px;
+    }
+
+    .hero-title h2 {
+        font-size: 12px;
+    }
+
+    .update-card {
+        padding: 5px 8px;
+    }
+
+    .update-title {
+        gap: 5px;
+        margin-bottom: 0;
+        font-size: 10px;
+    }
+
+    .update-dot {
+        width: 7px;
+        height: 7px;
+    }
+
+    .update-card strong {
+        font-size: 11px;
+    }
+
+    .update-card span:last-child {
+        font-size: 10px;
+        margin-top: 0;
+    }
+
+}
+
+/* ---------- Desktop: เว้นระยะ Header จากขอบบน ---------- */
+@media (min-width: 993px) {
+    .hero {
+        top: 12px;
+    }
+}
